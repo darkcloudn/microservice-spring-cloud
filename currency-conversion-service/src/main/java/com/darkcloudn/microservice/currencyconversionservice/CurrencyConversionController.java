@@ -1,6 +1,8 @@
 package com.darkcloudn.microservice.currencyconversionservice;
 
 
+import com.darkcloudn.microservice.currencyconversionservice.proxy.CurrencyExchangeProxy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +14,10 @@ import java.util.HashMap;
 
 @RestController
 public class CurrencyConversionController {
+
+
+    @Autowired
+    CurrencyExchangeProxy proxy;
 
     @GetMapping("/currency-conversion/from/{from}/to/{to}/quantity/{quantity}")
     public CurrencyConversion calculateCurrencyConversion(
@@ -28,6 +34,20 @@ public class CurrencyConversionController {
                 from,to,quantity,
                 currencyConversion.getConversionMultiple(),
                 quantity.multiply(currencyConversion.getConversionMultiple()),
-                "");
+                currencyConversion.getEnvironment()+ " rest template");
+    }
+    @GetMapping("/currency-conversion-feign/from/{from}/to/{to}/quantity/{quantity}")
+    public CurrencyConversion calculateCurrencyConversionFeign(
+            @PathVariable(name = "from") String from,
+            @PathVariable(name = "to") String to,
+            @PathVariable(name = "quantity") BigDecimal quantity){
+
+        CurrencyConversion currencyConversion = proxy.retrieveExchangeValue(from, to);
+
+        return new CurrencyConversion(currencyConversion.getId(),
+                from,to,quantity,
+                currencyConversion.getConversionMultiple(),
+                quantity.multiply(currencyConversion.getConversionMultiple()),
+                currencyConversion.getEnvironment() + " feign");
     }
 }
