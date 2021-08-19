@@ -1,5 +1,7 @@
 package com.darkcloudn.microservice.currencyexchangeservice;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +13,7 @@ import java.math.BigDecimal;
 @RestController
 public class CurrencyExchangeController {
 
+    private Logger logger  = LoggerFactory.getLogger(CurrencyExchangeController.class);
 
     @Autowired
     private Environment environment;
@@ -21,6 +24,8 @@ public class CurrencyExchangeController {
     public CurrencyExchange retrieveExchangeValue(
             @PathVariable(name = "from") String from,
             @PathVariable(name = "to") String to){
+
+        logger.info("currency-exchange call with {} to {}",from,to);
 //        CurrencyExchange currencyExchange = new CurrencyExchange(1000L, from, to, BigDecimal.valueOf(50));
         CurrencyExchange currencyExchange = repository.findByFromAndTo(from,to);
         if(currencyExchange == null){
